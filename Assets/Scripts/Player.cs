@@ -2,34 +2,25 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] private GameInput gameInput;
     private float moveSpeed = 7f;
     private float rotateSpeed = 10f;
     private bool isWalking;
+    private float playerRadius = 0.7f;
+    private float playerHeight = 2f;
     private void Update()
     {
-        Vector2 inputVector = new Vector2(0f, 0f);
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            inputVector.y = +1f;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            inputVector.y = -1f;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            inputVector.x = -1f;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            inputVector.x = +1f;
-        }
-        inputVector = inputVector.normalized;
-
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
         Vector3 moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        float moveDistance = moveSpeed * Time.deltaTime;
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirection, moveDistance);
+        if (canMove)
+        {
+            transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        }
+
         isWalking = moveDirection != Vector3.zero;
         transform.forward = Vector3.Slerp(transform.forward, moveDirection, Time.deltaTime * rotateSpeed);
     }
